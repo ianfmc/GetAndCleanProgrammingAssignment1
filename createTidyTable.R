@@ -112,17 +112,7 @@ createTidyTable <- function() {
   names(y.df) <- c("index")
   
   #### data conditioning
-  
-  ## convert the activity label index for each observation into the activity
-  ## label (via a 'table lookup') and collapse the frame to contain only the 
-  ## activity label
-      
-  m <- match(y.df$index, activity.df$index)
-  y.df$Activity.name <- sapply(m, 
-                               function(s) activity.df$name[s])
-  
-  y.df <- subset(y.df, select=c("Activity.name"))
-  
+    
   ## convert the fixed width observation (X) record contents 
   ## into the individual (numeric) feature vector values
   
@@ -136,31 +126,47 @@ createTidyTable <- function() {
   
   obs.df <- as.data.frame(do.call(rbind, x.observations))
   names(obs.df) <- features.df[,"index"]
-  
-  ## bind the activity label with the feature vector
-  
-  obs.df <- cbind.data.frame(y.df, obs.df)
-  obs.df <- cbind.data.frame(subject.df, obs.df)
-  
+    
   #### step 2. extract only those measures that measure the mean
   #### or standard deviation
   
   o.cols <- features.df[grep(".*(mean|std)",features.df$index),]
-  obs.df <- subset(obs.df, select=c("Subject.Number", "Activity.name", o.cols))
+  obs.df <- subset(obs.df, select=o.cols)
   
-  #### step 3. Change feature vector names to be more descriptive
+  #### step 3. use descriptive activity names instead of the index number
   
-  ## change lead 't' or 'f' to time or frequency
+  ## convert the activity label index for each observation into the activity
+  ## label (via a 'table lookup') and collapse the frame to contain only the 
+  ## activity label
   
-  names(obs.df) <- gsub("(-|,)", "", names(obs.df))
+  m <- match(y.df$index, activity.df$index)
+  y.df$Activity.Name <- sapply(m, 
+                               function(s) activity.df$name[s])
+  
+  y.df <- subset(y.df, select=c("Activity.Name"))
+  
+  #### step 4. Change feature variable names to be more descriptive
+ 
+  ## Goal: names will be Camel Case, and full words w/o punctuation
+  
+  ## a. remove all dashes, commas and periods from the names
+  ## b. change lead 't' or 'f' to time or frequency
+  ## c. change "Acc" to "Acceleration
+  ## d. change "mean()" to "Mean"
+  ## e. change "std() to StandardDeviation"
+  
+  ## bind the activity label and subject number with the feature vector
+  
+  obs.df <- cbind.data.frame(y.df, obs.df)
+  obs.df <- cbind.data.frame(subject.df, obs.df)
+
+  names(obs.df) <- gsub("(-|,|\\.|\\(|\\))", "", names(obs.df))
   names(obs.df) <- gsub("^t", "Time", names(obs.df))
   names(obs.df) <- gsub("^f", "Frequency", names(obs.df))
   names(obs.df) <- gsub("Acc", "Acceleration", names(obs.df))
   names(obs.df) <- gsub("mean\\(\\)", "Mean", names(obs.df))
   names(obs.df) <- gsub("std\\(\\)", "StandardDeviation", names(obs.df))
-  
-  #### Step 5. output the independent, tidy data set
-  
+    
   ## write the table to a file
   ## do not include row names in the file
   
@@ -168,7 +174,35 @@ createTidyTable <- function() {
               "Tidy-UCI-HAR-Data.txt",
               row.names=FALSE,
               col.names=TRUE)
+
+  #### step 5. create the independent, tidy data set -- average for
+  #### variable by subject
+  
+  obs.df.names <- names(obs.df)
+  cols.to.average <- obs.df.names[which(! obs.df.names %in% c("SubjectNumber", "ActivityName"))]
+  
+  unique.subjects <- unique(obs.df$SubjectNumber)
+  unique.subjects <- order(unique.subjects)
+
+  unique.activities <- unique(obs.df$ActivityName)
+  
+  summary <- data.frame()
+  
+  for (Subject in unique.subjects) {
+    for (Activity in unique.activities) {
+      MeanValues <- sapply(cols.to.average,
+                          function(x) mean(obs.df[(obs.df$SubjectNumber == Subject) &
+                                                    (obs.df$ActivityName == Activity), x]))
+    }
+  }
+
+  u <- expand.grid(unique.subjects, unique.activities)
+  names(u) <- c("SubjectNumber", "Activity")
+  
+  u <- u[order(u$SubjectNumber),]
   
   print(Sys.time())
-  names(obs.df)
+  setwd("..")
+  
+  return(summary)
 }
