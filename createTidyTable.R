@@ -3,6 +3,8 @@ createTidyTable <- function() {
   c.RowsToRead = 100
   setwd("UCI HAR Dataset")
   
+  library("plyr")
+  
   print(Sys.time())
   
   #### step 0. read metadata files
@@ -171,35 +173,19 @@ createTidyTable <- function() {
   ## do not include row names in the file
   
   write.table(obs.df,
-              "Tidy-UCI-HAR-Data.txt",
+              "Complete-UCI-HAR-Data.txt",
               row.names=FALSE,
               col.names=TRUE)
 
   #### step 5. create the independent, tidy data set -- average for
-  #### variable by subject
+  #### variable by subject using ddply
   
-  obs.df.names <- names(obs.df)
-  cols.to.average <- obs.df.names[which(! obs.df.names %in% c("SubjectNumber", "ActivityName"))]
+  summary <- ddply(obs.df, .(SubjectNumber, ActivityName), numcolwise(mean))
   
-  unique.subjects <- unique(obs.df$SubjectNumber)
-  unique.subjects <- order(unique.subjects)
-
-  unique.activities <- unique(obs.df$ActivityName)
-  
-  summary <- data.frame()
-  
-  for (Subject in unique.subjects) {
-    for (Activity in unique.activities) {
-      MeanValues <- sapply(cols.to.average,
-                          function(x) mean(obs.df[(obs.df$SubjectNumber == Subject) &
-                                                    (obs.df$ActivityName == Activity), x]))
-    }
-  }
-
-  u <- expand.grid(unique.subjects, unique.activities)
-  names(u) <- c("SubjectNumber", "Activity")
-  
-  u <- u[order(u$SubjectNumber),]
+  write.table(summary,
+              "Tidy-UCI-HAR-Data.txt",
+              row.names=FALSE,
+              col.names=TRUE)
   
   print(Sys.time())
   setwd("..")
