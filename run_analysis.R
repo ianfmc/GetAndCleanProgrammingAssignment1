@@ -159,6 +159,7 @@ run_analysis <- function() {
   names(obs.df) <- gsub("^f", "Frequency", names(obs.df))
   names(obs.df) <- gsub("Acc", "Acceleration", names(obs.df))
   names(obs.df) <- gsub("mean", "Mean", names(obs.df))
+  names(obs.df) <- gsub("mag", "Magnitude", names(obs.df))
   names(obs.df) <- gsub("std", "StandardDeviation", names(obs.df))
     
   #### step 5. create the independent, tidy data set -- average for
