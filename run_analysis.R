@@ -168,6 +168,8 @@ run_analysis <- function() {
   
   write.table(summary,
               "Tidy-UCI-HAR-Summary.txt",
+              sep=",",
+              quote=FALSE,
               row.names=FALSE,
               col.names=TRUE)
   
