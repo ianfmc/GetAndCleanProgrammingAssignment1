@@ -1,10 +1,8 @@
-createTidyTable <- function() {
-  
-  c.RowsToRead = 10000
-  setwd("UCI HAR Dataset")
+run_analysis <- function() {
   
   library("plyr")
-  
+  setwd("UCI HAR Dataset")
+    
   print(Sys.time())
   
   #### step 0. read metadata files
@@ -58,14 +56,12 @@ createTidyTable <- function() {
  
   s <- read.table("train/subject_train.txt",
                   sep="\n",
-                  nrows=c.RowsToRead,
                   header=FALSE)
   names(s) <- c("subject")
   subject.df <- rbind(subject.df, s)
   
   s <- read.table("test/subject_test.txt",
                   sep="\n",
-                  nrows=c.RowsToRead,
                   header=FALSE)
   names(s) <- c("subject")
   subject.df <- rbind(subject.df, s)
@@ -81,14 +77,12 @@ createTidyTable <- function() {
 
   x <- read.table("train/X_train.txt",
                   sep="\n", 
-                  nrows=c.RowsToRead,
                   header=FALSE)
   names(x) <- c("observation")
   x.df <- rbind(x.df, x)
   
   x <- read.table("test/X_test.txt",
                   sep="\n", 
-                  nrows=c.RowsToRead,
                   header=FALSE)
   names(x) <- c("observation")
   x.df <- rbind(x.df, x)
@@ -99,14 +93,12 @@ createTidyTable <- function() {
   
   y <- read.table("train/y_train.txt", 
                      sep="\n", 
-                     nrows=c.RowsToRead,
                      header=FALSE)
   names(y) <- c("observation")
   y.df <- rbind(y.df, y)
   
   y <- read.table("test/y_test.txt", 
                   sep="\n", 
-                  nrows=c.RowsToRead,
                   header=FALSE)
   names(y) <- c("observation")
   y.df <- rbind(y.df, y)
@@ -124,12 +116,12 @@ createTidyTable <- function() {
                                                                       seq(16, nchar(s), 16))))
   
   ## convert all feature vectors into a data frame and use the feature
-  ## frame as the names for feature vector variables
+  ## labels as the names for feature vector variables
   
   obs.df <- as.data.frame(do.call(rbind, x.observations))
   names(obs.df) <- features.df[,"index"]
     
-  #### step 2. extract only those measures that measure the mean
+  #### step 2. extract only those features that measure the mean
   #### or standard deviation
   
   o.cols <- features.df[grep(".*(mean|std)",features.df$index),]
@@ -141,8 +133,8 @@ createTidyTable <- function() {
   ## label (via a 'table lookup') and collapse the frame to contain only the 
   ## activity label
   
-  m <- match(y.df$index, activity.df$index)
-  y.df$Activity.Name <- sapply(m, 
+  index.match <- match(y.df$index, activity.df$index)
+  y.df$Activity.Name <- sapply(index.match, 
                                function(s) activity.df$name[s])
   
   y.df <- subset(y.df, select=c("Activity.Name"))
