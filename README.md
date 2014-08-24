@@ -10,6 +10,7 @@
 1. Place the UCI HAR data set folder (located at [https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip]) in same directory as script
 2. Run the script, `run_analysis()` found in the file run_analysis.R
 3. The script has five steps:
+
 - reads the metadata files (feature variable names and activity types)
 - reads and merges the training and test data
 - extracts only those features that measure the mean or standard deviation
