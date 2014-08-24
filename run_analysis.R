@@ -124,7 +124,7 @@ run_analysis <- function() {
   #### step 2. extract only those features that measure the mean
   #### or standard deviation
   
-  o.cols <- features.df[grep(".*(mean|std)",features.df$index),]
+  o.cols <- features.df[grep(".*(mean|std)\\(",features.df$index),]
   obs.df <- subset(obs.df, select=o.cols)
   
   #### step 3. use descriptive activity names instead of the index number
@@ -141,7 +141,7 @@ run_analysis <- function() {
   
   #### step 4. Change feature variable names to be more descriptive
  
-  ## Goal: names will be Camel Case, and full words w/o punctuation
+  ## Goal: names will be Camel Case, full words, and w/o punctuation
   
   ## a. remove all dashes, commas and periods from the names
   ## b. change lead 't' or 'f' to time or frequency
@@ -158,8 +158,8 @@ run_analysis <- function() {
   names(obs.df) <- gsub("^t", "Time", names(obs.df))
   names(obs.df) <- gsub("^f", "Frequency", names(obs.df))
   names(obs.df) <- gsub("Acc", "Acceleration", names(obs.df))
-  names(obs.df) <- gsub("mean\\(\\)", "Mean", names(obs.df))
-  names(obs.df) <- gsub("std\\(\\)", "StandardDeviation", names(obs.df))
+  names(obs.df) <- gsub("mean", "Mean", names(obs.df))
+  names(obs.df) <- gsub("std", "StandardDeviation", names(obs.df))
     
   #### step 5. create the independent, tidy data set -- average for
   #### variable by subject using ddply
