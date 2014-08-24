@@ -4,7 +4,7 @@
 ### Contents
 - README.md: this file
 - run_analysis.R: code to read and condition the dataset
-- Codebook.md: variable descriptions
+- Codebook.txt: variable descriptions
 
 ### Directions
 1. Place the UCI HAR data set folder (located at [https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip]) in same directory as script
